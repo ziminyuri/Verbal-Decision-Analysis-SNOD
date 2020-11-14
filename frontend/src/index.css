@@ -1,1 +1,14 @@
 @import "~materialize-css/dist/css/materialize.min.css";
+
+
+.brand-logo-custom {
+    margin-left: 1rem;
+}
+
+.auth-logo-custom{
+    color: #00796b;
+}
+
+.auth-btn-custom{
+    margin: 0.3rem;
+}

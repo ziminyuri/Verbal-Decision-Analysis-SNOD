@@ -4,6 +4,7 @@ import {InputDataPage} from './pages/InputDataPage'
 import {QuestionPage} from './pages/QuestionPage'
 import {IndexPage} from './pages/IndexPage'
 import {TablePage} from './pages/TablePage'
+import {AuthPage} from "./pages/AuthPage";
 
 
 export const useRoutes =() =>{
@@ -11,6 +12,9 @@ export const useRoutes =() =>{
         <Switch>
             <Route path="/" exact>
                 <IndexPage/>
+            </Route>
+            <Route path="/auth" exact>
+                <AuthPage/>
             </Route>
             <Route path="/input_data" exact>
                 <InputDataPage/>

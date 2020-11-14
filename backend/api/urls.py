@@ -3,5 +3,6 @@ from api import views
 
 urlpatterns = [
     path('api/v1/question', views.get_question),
-    path('api/v1/registration', views.registration)
+    path('api/v1/registration', views.registration),
+    path('api/v1/login', views.login)
 ]
