@@ -1,10 +1,12 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {useHttp} from "../hooks/http.hook";
-import {useMessage} from "../hooks/error.hook";
+import {useMessage} from '../hooks/error.hook'
+import {AuthContext} from "../context/AuthContext";
 
 export const AuthPage =() => {
+    const auth = useContext(AuthContext)
     const message = useMessage()
-    const {loading, error, request, clearError} = useHttp()
+    const {loading, request, error, clearError} = useHttp()
     const [authForm, setAuthForm] = useState ({
         email: '', password: ''
     })
@@ -12,7 +14,7 @@ export const AuthPage =() => {
     useEffect(() => {
         message(error)
         clearError()
-    },[error, useMessage, clearError])
+    }, [error, message, clearError])
 
     const changeHandler = event => {
         setAuthForm({...authForm, [event.target.name]: event.target.value })           // работаем с оператором spred
@@ -28,6 +30,7 @@ export const AuthPage =() => {
     const loginHandler = async () => {
         try {
             const data = await request('http://127.0.0.1:8000/api/v1/login', 'POST', {...authForm})
+            auth.login(data.token, data.user_id)
             console.log(data)
         } catch (e) {}
     }

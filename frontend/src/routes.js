@@ -7,23 +7,29 @@ import {TablePage} from './pages/TablePage'
 import {AuthPage} from "./pages/AuthPage";
 
 
-export const useRoutes =() =>{
+export const useRoutes = isAuthentificated =>{
+    if (isAuthentificated) {
+        return (
+            <Switch>
+                <Route path="/" exact>
+                    <IndexPage/>
+                </Route>
+                <Route path="/input_data" exact>
+                    <InputDataPage/>
+                </Route>
+                <Route path="/question" exact>
+                    <QuestionPage/>
+                </Route>
+                <Route path="/data" exact>
+                    <TablePage/>
+                </Route>
+            </Switch>
+        )
+    }
     return(
         <Switch>
             <Route path="/" exact>
-                <IndexPage/>
-            </Route>
-            <Route path="/auth" exact>
                 <AuthPage/>
-            </Route>
-            <Route path="/input_data" exact>
-                <InputDataPage/>
-            </Route>
-            <Route path="/question" exact>
-                <QuestionPage/>
-            </Route>
-            <Route path="/data" exact>
-                <TablePage/>
             </Route>
             <Redirect to={"/"}/>
         </Switch>

@@ -1,15 +1,13 @@
-import {useCallback, useState} from 'react'
+import {useState, useCallback} from 'react'
+
 export const useHttp = () => {
-    const [loading, setLoading] = useState (false)
-    const [error, serError] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
 
-    // useCallback нужен, чтобы React не входил в рекурсию
-    const request = useCallback(async (url, method='GET', body, headers={}) => {
+    const request = useCallback(async (url, method = 'GET', body, headers = {}) => {
         setLoading(true)
-
-
         try {
-            if(body){
+            if (body) {
                 body = JSON.stringify(body)
                 headers['Content-Type'] = 'application/json'
             }
@@ -17,18 +15,22 @@ export const useHttp = () => {
             const response = await fetch(url, {method, body, headers})
             const data = await response.json()
 
-            setLoading(false)
-            return data
+            if (!response.ok) {
+                throw new Error(data.Message || 'Ошибка при запросе к серверу')
+            }
 
-        }catch (e) {
-            console.log(e)
             setLoading(false)
-            serError(e.message)
+
+            return data
+        } catch (e) {
+            setLoading(false)
+            setError(e.message)
+
             throw e
         }
     }, [])
 
-    const clearError = () => serError(null)
+    const clearError = useCallback(() => setError(null), [])
 
-    return {loading, request, error, clearError}
+    return { loading, request, error, clearError }
 }

@@ -45,9 +45,9 @@ def login(request):
                     'exp': datetime.utcnow() + timedelta(seconds=JWT_EXP_DELTA_SECONDS)
                 }
                 jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
-                return JsonResponse({"token": jwt_token.decode('utf-8')}, status=200)
-            
-            return JsonResponse({"Message": "Пользователя не существует"}, status=400)
+                return JsonResponse({"token": jwt_token.decode('utf-8'),'user_id': user.id}, status=200)
+
+            return JsonResponse({'Message': 'Пользователя не существует'}, status=400)
 
         except Exception as e:
             return JsonResponse({"Message": "Ошибка при авторизации пользователя"}, status=400)

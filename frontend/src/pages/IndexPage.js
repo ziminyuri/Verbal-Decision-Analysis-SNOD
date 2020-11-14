@@ -1,9 +1,14 @@
 import React from "react";
 import {NavLink} from 'react-router-dom'
+import {Navbar} from "../components/Navbar";
+
 
 export const IndexPage =() => {
     return (
+
+
         <div>
+            <Navbar />
             <h1>Главная страница</h1>
             <div className="row">
             <div className="col s6 m6">
