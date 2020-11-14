@@ -19,7 +19,7 @@ export const IndexPage =() => {
                                     I am convenient because I require little markup to use effectively.</p>
                             </div>
                             <div className="card-action">
-                                <a href="#">Ввести в приложении</a>
+                                <NavLink to="/model/create">Ввести в приложении</NavLink>
                                 <a href="#">Загрузить .csv</a>
                             </div>
                         </div>

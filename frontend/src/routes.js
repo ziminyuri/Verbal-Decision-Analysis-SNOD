@@ -5,6 +5,7 @@ import {QuestionPage} from './pages/QuestionPage'
 import {IndexPage} from './pages/IndexPage'
 import {TablePage} from './pages/TablePage'
 import {AuthPage} from "./pages/AuthPage";
+import {CreateModelPage} from "./pages/CreateModelPage";
 
 
 export const useRoutes = isAuthentificated =>{
@@ -13,6 +14,9 @@ export const useRoutes = isAuthentificated =>{
             <Switch>
                 <Route path="/" exact>
                     <IndexPage/>
+                </Route>
+                <Route path="/model/create" exact>
+                    <CreateModelPage/>
                 </Route>
                 <Route path="/input_data" exact>
                     <InputDataPage/>
