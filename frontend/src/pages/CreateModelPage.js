@@ -10,13 +10,6 @@ export const CreateModelPage = (props) => {
         var instances2 = window.M.FormSelect.init(elems2, {});
     }, []);
 
-    const inputDataHandler = async () => {
-        try {
-            const data = await request('http://127.0.0.1:8000/api/v1/login', 'POST', {...authForm})
-            auth.login(data.token, data.user_id)
-            console.log(data)
-        } catch (e) {}
-    }
 
     return (
         <div className="row">
@@ -54,7 +47,7 @@ export const CreateModelPage = (props) => {
                     <div className="card-action">
                         <button
                             className='btn auth-btn-custom'
-                            onClick={inputDatahandler}
+
                         >Далее</button>
                         <button className='btn auth-btn-custom'>Назад</button>
                     </div>
