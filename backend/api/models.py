@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 
 User = get_user_model()
 
@@ -16,14 +16,16 @@ class UserProfile(models.Model):
 class Model(models.Model):
     # Модель
     is_demo = models.BooleanField()
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    number = models.CharField(max_length=255)
 
 
 class Criterion(models.Model):
     # Модель критерием
+    number = models.IntegerField()
     name = models.CharField(max_length=200)
-    direction = models.BooleanField()     # max or min
+    direction = models.BooleanField()     # max (True) or min (False)
     id_model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    max = models.FloatField()
 
     def __str__(self):
         return self.name
@@ -33,6 +35,7 @@ class Option(models.Model):
     # Модель вариантов
     name = models.CharField(max_length=200)
     id_model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    number = models.IntegerField()
 
     def __str__(self):
         return self.name
@@ -54,6 +57,9 @@ class PairsOfOptions(models.Model):
     id_option_2 = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='id_option_2')
     winner_option = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='winner_option', blank=True,
                                       null=True)
+    id_model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    filename = models.CharField(max_length=255)
+
 
     def __str__(self):
        return str(self.id_option_1) + '' + str(self.id_option_2)

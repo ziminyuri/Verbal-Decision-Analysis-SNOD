@@ -1,9 +1,20 @@
 import React from "react";
-import {NavLink} from 'react-router-dom'
+import {NavLink, useHistory} from 'react-router-dom'
+import {useHttp} from "../hooks/http.hook";
 
 
 
 export const IndexPage =() => {
+    const {loading, request, error, clearError} = useHttp()
+    const history = useHistory()
+
+    const useDemoModelHandler = async () => {
+        try {
+            await request('http://127.0.0.1:8000/api/v1/model/demo/create', 'GET', )
+            history.push('/model/demo')
+        } catch (e) {}
+    }
+
     return (
 
 
@@ -14,8 +25,7 @@ export const IndexPage =() => {
                         <div className="card blue-grey darken-1">
                             <div className="card-content white-text">
                                 <span className="card-title">Ввести пользовательские данные</span>
-                                <p>I am a very simple card. I am good at containing small bits of information.
-                                    I am convenient because I require little markup to use effectively.</p>
+                                <p>Вы можете ввести свои данные через форму или загрузить данные с помощью .csv файла.</p>
                             </div>
                             <div className="card-action">
                                 <NavLink to="/model/create">Ввести в приложении</NavLink>
@@ -26,12 +36,12 @@ export const IndexPage =() => {
             <div className="col s6 m6">
                         <div className="card blue-grey darken-1">
                             <div className="card-content white-text">
-                                <span className="card-title">Использовать Демо данные</span>
-                                <p>I am a very simple card. I am good at containing small bits of information.
-                                    I am convenient because I require little markup to use effectively.</p>
+                                <span className="card-title">Использовать демо данные</span>
+                                <p>В демо версии предлагается 7 криетриев и 4 альтернативы</p>
                             </div>
                             <div className="card-action">
-                                <NavLink to="/data" >Использовать</NavLink>
+                                <button
+                                onClick={useDemoModelHandler}>Использовать</button>
                             </div>
                         </div>
             </div>

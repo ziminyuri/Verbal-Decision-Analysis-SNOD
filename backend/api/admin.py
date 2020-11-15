@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from api.models import UserProfile, Model, Criterion, Option, PairsOfOptions, Value
+from api.models import (Criterion, Model, Option, PairsOfOptions, UserProfile,
+                        Value)
 
 admin.site.register(UserProfile)
 admin.site.register(Model)
