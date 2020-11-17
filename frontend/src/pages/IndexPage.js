@@ -3,21 +3,19 @@ import {NavLink, useHistory} from 'react-router-dom'
 import {useHttp} from "../hooks/http.hook";
 
 
-
 export const IndexPage =() => {
     const {loading, request, error, clearError} = useHttp()
     const history = useHistory()
 
     const useDemoModelHandler = async () => {
         try {
-            await request('http://127.0.0.1:8000/api/v1/model/demo/create', 'GET', )
-            history.push('/model/demo')
+            //const data = await request('http://127.0.0.1:8000/api/v1/model/demo/create', 'GET', )
+            //console.log(data)
+            history.push('/model/demo/question')
         } catch (e) {}
     }
 
     return (
-
-
         <div>
             <h1>Главная страница</h1>
             <div className="row">
