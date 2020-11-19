@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from api.models import Criterion, Option, Value, PairsOfOptions
-from services.pairs_of_options import create_files, make_question
+from services.pairs_of_options import create_files, make_question, write_answer
 from services.services import get_hash
 from services.model import create_model
 
@@ -18,7 +18,6 @@ from services.model import create_model
 JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
 JWT_EXP_DELTA_SECONDS = 20
-
 
 
 @csrf_exempt  # to make true read https://stackoverflow.com/questions/17716624/django-csrf-cookie-not-set
@@ -107,11 +106,8 @@ def demo_create(request):
         for i in range(n):
             for j in range(k, n):
                 if i != j:
-                    number_rundom: str = str(random.random())
-                    number_rundom = get_hash(number_rundom)
-
                     s = PairsOfOptions.objects.create(id_option_1=options_obj_list[i], id_option_2=options_obj_list[j],
-                                                      id_model=model, filename=number_rundom)
+                                                      id_model=model)
 
             k += 1
         create_files(model)
@@ -119,3 +115,11 @@ def demo_create(request):
 
         return JsonResponse(message, status=200)
 
+
+@csrf_exempt
+def question(request):
+    if request.method == 'POST':
+        json_data: dict = json.loads(request.body)
+        message = write_answer(json_data)
+
+        return JsonResponse(message, status=200)

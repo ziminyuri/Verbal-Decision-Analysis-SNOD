@@ -16,7 +16,6 @@ class UserProfile(models.Model):
 class Model(models.Model):
     # Модель
     is_demo = models.BooleanField()
-    number = models.CharField(max_length=255)
 
 
 class Criterion(models.Model):
@@ -58,8 +57,6 @@ class PairsOfOptions(models.Model):
     winner_option = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='winner_option', blank=True,
                                       null=True)
     id_model = models.ForeignKey(Model, on_delete=models.CASCADE)
-    filename = models.CharField(max_length=255)
-
 
     def __str__(self):
        return str(self.id_option_1) + '' + str(self.id_option_2)
