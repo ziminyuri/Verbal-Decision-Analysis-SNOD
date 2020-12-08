@@ -1,6 +1,5 @@
 import csv
 import json
-import random
 from datetime import datetime, timedelta
 
 import jwt
@@ -11,7 +10,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from api.models import Criterion, Option, Value, PairsOfOptions
 from services.pairs_of_options import create_files, make_question, write_answer
-from services.services import get_hash
 from services.model import create_model
 
 
@@ -123,3 +121,10 @@ def question(request):
         message = write_answer(json_data)
 
         return JsonResponse(message, status=200)
+
+
+@csrf_exempt
+def get_model(request, id):
+
+    Message = {'flag_find_winner': 1}
+    return JsonResponse(Message, status=200)
