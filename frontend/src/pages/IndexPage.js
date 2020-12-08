@@ -9,8 +9,6 @@ export const IndexPage =() => {
 
     const useDemoModelHandler = async () => {
         try {
-            //const data = await request('http://127.0.0.1:8000/api/v1/model/demo/create', 'GET', )
-            //console.log(data)
             history.push('/model/demo/question')
         } catch (e) {}
     }
@@ -38,8 +36,8 @@ export const IndexPage =() => {
                                 <p>В демо версии предлагается 7 криетриев и 4 альтернативы</p>
                             </div>
                             <div className="card-action">
-                                <button
-                                onClick={useDemoModelHandler}>Использовать</button>
+                                <a
+                                onClick={useDemoModelHandler}>Использовать</a>
                             </div>
                         </div>
             </div>

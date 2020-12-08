@@ -6,6 +6,7 @@ import {IndexPage} from './pages/IndexPage'
 import {DemoModelPage} from './pages/DemoModelPage'
 import {AuthPage} from "./pages/AuthPage";
 import {CreateModelPage} from "./pages/CreateModelPage";
+import {ResultModelPage} from "./pages/ResultModelPage"
 
 
 export const useRoutes = isAuthentificated =>{
@@ -26,6 +27,9 @@ export const useRoutes = isAuthentificated =>{
                 </Route>
                 <Route path="/model/demo" exact>
                     <DemoModelPage/>
+                </Route>
+                <Route path="/model/result/:id">
+                    <ResultModelPage/>
                 </Route>
             </Switch>
         )
