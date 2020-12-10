@@ -148,17 +148,6 @@ def get_model(request, id):
 
 
 @csrf_exempt
-def create_model_from_csv(request):
-    try:
-        body = request.body
-
-    except Exception as e:
-        print(e)
-
-    return JsonResponse('', status=200)
-
-
-@csrf_exempt
 def get_models(request):
     response = []
     try:

@@ -10,6 +10,5 @@ urlpatterns = [
     path('api/v1/model/demo/create', views.demo_create),
     path('api/v1/question', views.question),
     path('api/v1/model/result/<int:id>', views.get_model),
-    path('api/v1/model/create/csv', views.create_model_from_csv),
     path('api/v1/models', views.get_models)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

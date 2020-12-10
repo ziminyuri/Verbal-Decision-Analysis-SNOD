@@ -96,11 +96,11 @@ def write_answer(response: dict) -> dict:
 
     _write_answer_to_history(question, answer, option_1, option_2, model_id)
 
-
     model = Model.objects.get(id=model_id)
     pair = PairsOfOptions.objects.filter(id_option_1=option_1).get(id_option_2=option_2)
 
     data, delimeter_line, n = _read_file(model, pair)
+    _write_answer_model(option_1_line, option_2_line, model_id, data, answer)
 
     flag_new_pair = False
 
@@ -111,61 +111,86 @@ def write_answer(response: dict) -> dict:
 
         # Строка состоит из одного критерия или из нескольких, если из одного то -1
         find_delimeter = option_1_line.find(';')
+        if find_delimeter == -1:
+            line = option_1_line + "|" + option_2_line + "|=1\n"
+            _write_file(line, path)
 
-        line = option_1_line + "|" + option_2_line + "|=1\n"
-        _write_file(line, path)
+            list_2 = option_2_line.split(';')   # Разделили строку по разделителю
+            new_line_2 = int(list_2[-1])        # Взяли номер строки самой близкой к центру из списка который сравнивали ранее
+            line_end = data[new_line_2 - 1]     # Строку которую мы добавляем
+            list_2.append(str(new_line_2-1))
+            option_2_line += ';' + str(new_line_2-1)
 
-        list_2 = option_2_line.split(';')   # Разделили строку по разделителю
-        new_line_2 = int(list_2[-1])        # Взяли номер строки самой близкой к центру из списка который сравнивали ранее
-        line_end = data[new_line_2 - 1]     # Строку которую мы добавляем
-        list_2.append(str(new_line_2-1))
-        option_2_line += ';' + str(new_line_2-1)
+            list_1 = option_1_line.split(';')
+            new_line_1 = int(list_1[-1])
+            line_begin = data[new_line_1]
 
-        list_1 = option_1_line.split(';')
-        new_line_1 = int(list_1[-1])
-        line_begin = data[new_line_1]
+            value_line_end = float(line_end[1])
 
-        value_line_end = float(line_end[1])
+            if line_begin[0] != line_end[0] and value_line_end != 0.0:
 
-        if line_begin[0] != line_end[0] and value_line_end != 0.0:
+                criteria_number = int(line_begin[0])
+                criteria_1 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
+                name_1 = criteria_1.name
 
-            criteria_number = int(line_begin[0])
-            criteria_1 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
-            name_1 = criteria_1.name
+                name_2 = ''
+                first_line = True
+                for row in list_2:
+                    criteria_number = data[int(row[0])][0]
+                    criteria_2 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
+                    if first_line is True:
+                        name_2 = criteria_2.name
+                        first_line = False
+                    else:
+                        name_2 += ' и ' + criteria_2.name
 
-            name_2 = ''
-            first_line = True
-            for row in list_2:
-                criteria_number = data[int(row[0])][0]
-                criteria_2 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
-                if first_line is True:
-                    name_2 = criteria_2.name
-                    first_line = False
-                else:
-                    name_2 += ' и ' + criteria_2.name
+            elif value_line_end == 0.0:
+                    # Если значение с одного края стали равны нулю, а с другого не дошли до центра или до 0
+                i = 1
+                while (i != 0):
+                    line_end = data[new_line_2-i]
+                    if float(line_end[1]) != 0.0:
+                        line = option_1_line + "|" + str(new_line_2-i) + "|=2\n"
+                        _write_file(line, path)
+                        i += 1
 
-        elif value_line_end == 0.0:
-                # Если значение с одного края стали равны нулю, а с другого не дошли до центра или до 0
-            i = 1
-            while (i != 0):
-                line_end = data[new_line_2-i]
-                if float(line_end[1]) != 0.0:
-                    line = option_1_line + "|" + str(new_line_2-i) + "|=2\n"
-                    _write_file(line, path)
-                    i += 1
+                    else:
+                        break
 
-                else:
-                    break
+                _count_winner(model, pair)
+                Message = make_question(model)
+                flag_new_pair = True
 
-            _count_winner(model, pair)
-            Message = make_question(model)
-            flag_new_pair = True
+            else:
+                # Сошлись к центру  ---0---^
+                _count_winner(model, pair)
+                Message = make_question(model)
+                flag_new_pair = True
 
         else:
-            # Сошлись к центру  ---0---^
-            _count_winner(model, pair)
-            Message = make_question(model)
-            flag_new_pair = True
+            line = option_1_line + "|" + option_2_line + "|=0\n"
+            _write_file(line, path)
+
+            list_2 = option_2_line.split(';')  # Разделили строку по разделителю
+            new_line_2 = int(list_2[-1])  # Взяли номер строки самой близкой к центру из списка который сравнивали ранее
+            line_end = data[new_line_2-1]
+
+            list_1 = option_1_line.split(';')
+            new_line_1 = int(list_1[-1])
+            line_begin = data[new_line_1]
+
+            option_2_line = str(new_line_2-1)
+            option_1_line = str(new_line_1)
+
+            if line_begin[0] != line_end[0]:
+                criteria_number = int(line_end[0])
+                criteria_2 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
+                name_2 = criteria_2.name
+
+                criteria_number = int(line_begin[0])
+                criteria_1 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
+                name_1 = criteria_1.name
+
 
     elif answer == 0:
         line = option_1_line + "|" + option_2_line + "|=0\n"
@@ -196,7 +221,6 @@ def write_answer(response: dict) -> dict:
             criteria_number = int(line_begin[0])
             criteria_1 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
             name_1 = criteria_1.name
-
 
     else:
         # Строка состоит из одного критерия или из нескольких, если из одного то -1
@@ -521,3 +545,40 @@ def _create_image_for_pair(rows, model, pair):
     idraw.text((15, h-40), p.id_option_2.name, font=font, fill='#000000')
 
     img.save(path)
+
+
+def _write_answer_model(option_1_line: str, option_2_line: str, model_id, data: list, answer: int):
+    # Оптимизация, чтобы не спрашивать у пользователя повторяющиеся вопросы
+
+    options_1 = option_1_line.split(';')
+    options_2 = option_2_line.split(';')
+
+    option_list_1 = []
+    option_list_2 = []
+
+    for option in options_1:
+        number_criteria = data[int(option)][0]
+        option_list_1.append(number_criteria)
+
+    for option in options_2:
+        number_criteria = data[int(option)][0]
+        option_list_2.append(number_criteria)
+
+    option_list_1.sort()
+    option_list_2.sort()
+
+    line = ''
+    for option in option_list_1:
+        line += str(option) + ';'
+    line += '|'
+
+    for option in option_list_2:
+        line += str(option) + ';'
+    line += '|=' + str(answer) + '\n'
+
+    path = 'api/files/models/' + str(model_id) + '.txt'
+    _write_file(line, path)
+
+
+
+
