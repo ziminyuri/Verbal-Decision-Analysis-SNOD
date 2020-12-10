@@ -60,6 +60,8 @@ class PairsOfOptions(models.Model):
     id_option_2 = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='id_option_2')
     winner_option = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='winner_option', blank=True,
                                       null=True)
+    winner_option_many = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='winner_option_many', blank=True,
+                                      null=True)
     id_model = models.ForeignKey(Model, on_delete=models.CASCADE)
 
     def __str__(self):

@@ -35,6 +35,9 @@ def create_files(model: object):
         rows = _sort(rows)  # Сортируем штобы привести к шкале и нормализуем под проценты
 
         _init_file(rows, str(i.id), str(model.id))
+        _find_winner_many_qriterion(rows, i)  # ищем победителя
+
+    _find_winner_for_model_many(model)
 
 
 def _precent(value, max) -> float:
@@ -52,21 +55,6 @@ def _init_file(data: list, filename: str, modelname: str) -> None:
 
     pair_file.write('#####\n')
     pair_file.close()
-
-
-def _sort(rows: list) -> list:
-    # Cортируем пузырьков
-
-    n = len(rows)
-    for i in range(n - 1):
-        for j in range(n - i - 1):
-            row_i = rows[j]
-            row_i1 = rows[j + 1]
-
-            if row_i[1] < row_i1[1]:
-                rows[j], rows[j + 1] = rows[j + 1], rows[j]
-
-    return rows
 
 
 def make_question(model):
@@ -369,3 +357,58 @@ def _find_winner_for_model(model):
     )
 
 
+def _sort(rows: list) -> list:
+    # Cортируем пузырьков
+
+    n = len(rows)
+    for i in range(n - 1):
+        for j in range(n - i - 1):
+            row_i = rows[j]
+            row_i1 = rows[j + 1]
+
+            if row_i[1] < row_i1[1]:
+                rows[j], rows[j + 1] = rows[j + 1], rows[j]
+
+    return rows
+
+
+def _find_winner_many_qriterion(rows: list, pair: object):
+    # Ищем победителя для пары по многокритериальному критерию
+
+    sum = 0
+    for row in rows:
+        sum += row[1]
+
+    if sum >= 0:
+        winner = pair.id_option_1
+    else:
+        winner = pair.id_option_2
+
+    PairsOfOptions.objects.filter(id=pair.id).update(
+        winner_option_many=winner,
+    )
+
+
+def _find_winner_for_model_many(model):
+    model = Model.objects.get(id=model.id)
+    options = Option.objects.filter(id_model=model)
+    pairs = PairsOfOptions.objects.filter(id_model=model)
+
+    winners = {}
+
+    for option in options:
+        winners[option.id] = 0
+
+    for pair in pairs:
+        winner_id = pair.winner_option_many.id
+        winners[winner_id] += 1
+
+    winner_value, winner_id = 0, 0
+    for key, value in winners.items():
+        if winner_value < value:
+            winner_id = key
+            winner_value = value
+
+    Model.objects.filter(id=model.id).update(
+        id_winner_option_many=winner_id,
+    )

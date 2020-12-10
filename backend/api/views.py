@@ -129,7 +129,8 @@ def question(request):
 def get_model(request, id):
     model = Model.objects.get(id=id)
     option_shnur = Option.objects.get(id=model.id_winner_option_shnur)
-    message = {'option_shnur': option_shnur.name, 'option_many': 'lheujq'}
+    option_many = Option.objects.get(id=model.id_winner_option_many)
+    message = {'option_shnur': option_shnur.name, 'option_many': option_many.name}
     return JsonResponse(message, status=200)
 
 
