@@ -7,6 +7,7 @@ import {DemoModelPage} from './pages/DemoModelPage'
 import {AuthPage} from "./pages/AuthPage";
 import {CreateModelPage} from "./pages/CreateModelPage";
 import {ResultModelPage} from "./pages/ResultModelPage"
+import {ModelsPage} from "./pages/ModelsPage";
 
 
 export const useRoutes = isAuthentificated =>{
@@ -30,6 +31,9 @@ export const useRoutes = isAuthentificated =>{
                 </Route>
                 <Route path="/model/result/:id">
                     <ResultModelPage/>
+                </Route>
+                <Route path="/models">
+                    <ModelsPage/>
                 </Route>
             </Switch>
         )

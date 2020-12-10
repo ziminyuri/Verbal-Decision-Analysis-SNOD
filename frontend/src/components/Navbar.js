@@ -19,7 +19,7 @@ export const Navbar = () => {
                 <ul id="nav-mobile" className="right hide-on-med-and-down">
                     <li><NavLink to="/" >Главная</NavLink></li>
                     <li><NavLink to="/model/create" >Создать</NavLink></li>
-                    <li><NavLink to="/questions" >Модели</NavLink></li>
+                    <li><NavLink to="/models" >Модели</NavLink></li>
                     <li><a href='/' onClick={logoutHandler} >Выйти</a></li>
                 </ul>
             </div>

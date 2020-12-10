@@ -1,5 +1,7 @@
 import csv
 import json
+import base64
+from django.core.files.base import ContentFile
 from datetime import datetime, timedelta
 
 import jwt
@@ -8,7 +10,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from api.models import Criterion, Option, Value, PairsOfOptions
+from api.models import Criterion, Option, Value, PairsOfOptions, Model
 from services.pairs_of_options import create_files, make_question, write_answer
 from services.model import create_model
 
@@ -60,7 +62,7 @@ def login(request):
 def demo_create(request):
     if request.method == 'GET':
         options_obj_list = []
-        model = create_model()
+        model = create_model(demo_model=True)
 
         with open("api/files/demo.csv", encoding='utf-8') as r_file:
             file_reader = csv.reader(r_file, delimiter=",")
@@ -125,6 +127,33 @@ def question(request):
 
 @csrf_exempt
 def get_model(request, id):
+    model = Model.objects.get(id=id)
+    option_shnur = Option.objects.get(id=model.id_winner_option_shnur)
+    message = {'option_shnur': option_shnur.name, 'option_many': 'lheujq'}
+    return JsonResponse(message, status=200)
 
-    Message = {'flag_find_winner': 1}
-    return JsonResponse(Message, status=200)
+
+@csrf_exempt
+def create_model_from_csv(request):
+    try:
+        body = request.body
+
+    except Exception as e:
+        print(e)
+
+    return JsonResponse('', status=200)
+
+
+@csrf_exempt
+def get_models(request):
+    response = []
+    try:
+        models = Model.objects.all()
+
+        for model in models:
+            response.append({'name': model.name, 'id': model.id})
+
+    except Exception as e:
+        print(e)
+
+    return JsonResponse(response, status=200, safe=False)

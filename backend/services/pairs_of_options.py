@@ -73,6 +73,8 @@ def make_question(model):
     model = Model.objects.get(id=model.id)
     pairs = PairsOfOptions.objects.filter(id_model=model).filter(winner_option=None)
     if not pairs:
+
+        _find_winner_for_model(model)
         Message = {'flag_find_winner': 1, 'model': model.id, 'question': '', 'option_1': 0, 'option_2': 0,
                                'option_1_line': '', 'option_2_line': ''}
         return Message
@@ -340,4 +342,30 @@ def _count_winner(model: object, pair: object) -> None:
     PairsOfOptions.objects.filter(id=pair.id).update(
         winner_option=winner,
     )
+
+
+def _find_winner_for_model(model):
+    model = Model.objects.get(id=model.id)
+    options = Option.objects.filter(id_model=model)
+    pairs = PairsOfOptions.objects.filter(id_model=model)
+
+    winners = {}
+
+    for option in options:
+        winners[option.id] = 0
+
+    for pair in pairs:
+        winner_id = pair.winner_option.id
+        winners[winner_id] += 1
+
+    winner_value, winner_id = 0, 0
+    for key, value in winners.items():
+        if winner_value < value:
+            winner_id = key
+            winner_value = value
+
+    Model.objects.filter(id=model.id).update(
+        id_winner_option_shnur=winner_id,
+    )
+
 

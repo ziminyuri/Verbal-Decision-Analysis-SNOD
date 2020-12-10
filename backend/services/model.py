@@ -1,12 +1,14 @@
 from api.models import Model
-import random
-from services.services import get_hash
 import os
 
 
-def create_model() -> object:
+def create_model(demo_model: bool = False) -> object:
     try:
-        model = Model.objects.create(is_demo=True)
+        if demo_model:
+            model = Model.objects.create(is_demo=True, name='Демонстрационная')
+        else:
+            model = Model.objects.create(is_demo=True, name='Пользовательская')
+
         _create_dir(str(model.id))
 
         return model

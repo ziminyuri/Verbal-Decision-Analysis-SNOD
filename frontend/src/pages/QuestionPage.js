@@ -1,7 +1,6 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useHttp} from "../hooks/http.hook";
 import {useHistory} from "react-router-dom";
-import { Redirect } from "react-router-dom"; //import Redirect first
 
 export const QuestionPage =() => {
     const {loading, request} = useHttp()
@@ -10,12 +9,10 @@ export const QuestionPage =() => {
 
     // Зибраем данные объектов с сервера при загрузки страницы
     useEffect(() => {
-
         const fetchData = async () => {
             const data = await request('/api/v1/model/demo/create', 'GET', )
             setResponse(data);
         };
-
         fetchData();
     }, []);
 

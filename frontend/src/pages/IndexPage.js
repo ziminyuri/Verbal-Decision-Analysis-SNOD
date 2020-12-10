@@ -1,17 +1,20 @@
 import React from "react";
 import {NavLink, useHistory} from 'react-router-dom'
-import {useHttp} from "../hooks/http.hook";
+//import {useHttp} from "../hooks/http.hook";
 
 
 export const IndexPage =() => {
-    const {loading, request, error, clearError} = useHttp()
+    //const {} = useHttp()
     const history = useHistory()
+
 
     const useDemoModelHandler = async () => {
         try {
             history.push('/model/demo/question')
         } catch (e) {}
     }
+
+
 
     return (
         <div>
@@ -25,7 +28,7 @@ export const IndexPage =() => {
                             </div>
                             <div className="card-action">
                                 <NavLink to="/model/create">Ввести в приложении</NavLink>
-                                <a href="#">Загрузить .csv</a>
+                                <input type="file" name="file" />
                             </div>
                         </div>
             </div>
