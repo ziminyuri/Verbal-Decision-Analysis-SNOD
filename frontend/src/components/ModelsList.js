@@ -19,10 +19,10 @@ export const ModelsList = ({models}) => {
                 </thead>
 
                 <tbody>
-                {models.map((model) => {
+                {models.map((model, index) => {
                     return (
                         <tr key={model.id}>
-                            <td>{model.id}</td>
+                            <td>{index + 1}</td>
                             <td>{model.name}</td>
                             <td>
                                 <Link to={`/model/result/${model.id}`} >

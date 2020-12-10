@@ -56,6 +56,7 @@ class Value(models.Model):
 
 class PairsOfOptions(models.Model):
     # Пары вариантов и результаты их сравнения
+
     id_option_1 = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='id_option_1')
     id_option_2 = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='id_option_2')
     winner_option = models.ForeignKey(Option, on_delete=models.CASCADE, related_name='winner_option', blank=True,
@@ -66,3 +67,13 @@ class PairsOfOptions(models.Model):
 
     def __str__(self):
        return str(self.id_option_1) + '' + str(self.id_option_2)
+
+
+class HistoryAnswer(models.Model):
+    # Хранятся ответы на вопросы к ЛПР
+
+    question = models.TextField(max_length=1000)
+    answer = models.CharField(max_length=255)
+    pair = models.ForeignKey(PairsOfOptions, on_delete=models.CASCADE, related_name='pair')
+    id_model = models.ForeignKey(Model, on_delete=models.CASCADE)
+

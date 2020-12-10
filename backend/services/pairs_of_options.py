@@ -1,4 +1,4 @@
-from api.models import Model, Criterion, PairsOfOptions, Value, Option
+from api.models import Model, Criterion, PairsOfOptions, Value, Option, HistoryAnswer
 
 
 def create_files(model: object):
@@ -105,6 +105,10 @@ def write_answer(response: dict) -> dict:
     option_1_line: str = response["option_1_line"]
     option_2_line: str = response["option_2_line"]
     model_id: int = response["model"]
+    question: str = response["question"]
+
+    _write_answer_to_history(question, answer, option_1, option_2, model_id)
+
 
     model = Model.objects.get(id=model_id)
     pair = PairsOfOptions.objects.filter(id_option_1=option_1).get(id_option_2=option_2)
@@ -412,3 +416,16 @@ def _find_winner_for_model_many(model):
     Model.objects.filter(id=model.id).update(
         id_winner_option_many=winner_id,
     )
+
+
+def _write_answer_to_history(question, answer, option_1, option_2, model_id):
+    model = Model.objects.get(id=model_id)
+    option_1 = Option.objects.get(id=option_1)
+    option_2 = Option.objects.get(id=option_2)
+    pair = PairsOfOptions.objects.get(id_option_1=option_1, id_option_2=option_2)
+    if answer == 1:
+        HistoryAnswer.objects.create(question=question, answer='Важнее первое', pair=pair, id_model=model)
+    elif answer == 2:
+        HistoryAnswer.objects.create(question=question, answer='Важнее второе', pair=pair, id_model=model)
+    else:
+        HistoryAnswer.objects.create(question=question, answer='Одинаково важны', pair=pair, id_model=model)

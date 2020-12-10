@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from api.models import Criterion, Option, Value, PairsOfOptions, Model
+from api.models import Criterion, Option, Value, PairsOfOptions, Model, HistoryAnswer
 from services.pairs_of_options import create_files, make_question, write_answer
 from services.model import create_model
 
@@ -130,8 +130,16 @@ def get_model(request, id):
     model = Model.objects.get(id=id)
     option_shnur = Option.objects.get(id=model.id_winner_option_shnur)
     option_many = Option.objects.get(id=model.id_winner_option_many)
-    message = {'option_shnur': option_shnur.name, 'option_many': option_many.name}
-    return JsonResponse(message, status=200)
+
+    # История ответов
+    history_answers = HistoryAnswer.objects.filter(id_model=model)
+    answers = []
+    for answer_history in history_answers:
+        answers.append({'question': answer_history.question, 'answer': answer_history.answer,
+                        'pair': answer_history.pair.id_option_1.name + ' и ' + answer_history.pair.id_option_1.name})
+
+    response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers}
+    return JsonResponse(response, status=200, safe=False)
 
 
 @csrf_exempt
