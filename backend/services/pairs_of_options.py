@@ -1,4 +1,7 @@
 from api.models import Model, Criterion, PairsOfOptions, Value, Option, HistoryAnswer
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 
 def create_files(model: object):
@@ -36,25 +39,9 @@ def create_files(model: object):
 
         _init_file(rows, str(i.id), str(model.id))
         _find_winner_many_qriterion(rows, i)  # ищем победителя
+        _create_image_for_pair(rows, str(model.id), str(i.id))
 
     _find_winner_for_model_many(model)
-
-
-def _precent(value, max) -> float:
-    return value / (max / 100)
-
-
-def _init_file(data: list, filename: str, modelname: str) -> None:
-    path = 'api/files/models/' + modelname + '/' + filename + '.txt'
-    pair_file = open(path, 'w')
-
-    for row in data:
-        line = ';'.join([str(i) for i in row])
-        pair_file.write(line)
-        pair_file.write('\n')
-
-    pair_file.write('#####\n')
-    pair_file.close()
 
 
 def make_question(model):
@@ -125,11 +112,9 @@ def write_answer(response: dict) -> dict:
         # Строка состоит из одного критерия или из нескольких, если из одного то -1
         find_delimeter = option_1_line.find(';')
 
-
         line = option_1_line + "|" + option_2_line + "|=1\n"
         _write_file(line, path)
 
-        ### тут надо будет пофиксить     1;2;3
         list_2 = option_2_line.split(';')   # Разделили строку по разделителю
         new_line_2 = int(list_2[-1])        # Взяли номер строки самой близкой к центру из списка который сравнивали ранее
         line_end = data[new_line_2 - 1]     # Строку которую мы добавляем
@@ -140,8 +125,9 @@ def write_answer(response: dict) -> dict:
         new_line_1 = int(list_1[-1])
         line_begin = data[new_line_1]
 
+        value_line_end = float(line_end[1])
 
-        if line_begin[0] != line_end[0]:
+        if line_begin[0] != line_end[0] and value_line_end != 0.0:
 
             criteria_number = int(line_begin[0])
             criteria_1 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
@@ -158,6 +144,29 @@ def write_answer(response: dict) -> dict:
                 else:
                     name_2 += ' и ' + criteria_2.name
 
+        elif value_line_end == 0.0:
+                # Если значение с одного края стали равны нулю, а с другого не дошли до центра или до 0
+            i = 1
+            while (i != 0):
+                line_end = data[new_line_2-i]
+                if float(line_end[1]) != 0.0:
+                    line = option_1_line + "|" + str(new_line_2-i) + "|=2\n"
+                    _write_file(line, path)
+                    i += 1
+
+                else:
+                    break
+
+            _count_winner(model, pair)
+            Message = make_question(model)
+            flag_new_pair = True
+
+        else:
+            # Сошлись к центру  ---0---^
+            _count_winner(model, pair)
+            Message = make_question(model)
+            flag_new_pair = True
+
     elif answer == 0:
         line = option_1_line + "|" + option_2_line + "|=0\n"
         _write_file(line, path)
@@ -173,7 +182,13 @@ def write_answer(response: dict) -> dict:
         option_2_line = str(new_line_2-1)
         option_1_line = str(new_line_1 + 1)
 
-        if line_begin[0] != line_end[0] or new_line_1 + 1 != new_line_2:
+        if line_begin[0] == line_end[0] or new_line_1 + 1 == new_line_2:
+            # Сошлись к центру  ---0---^
+            _count_winner(model, pair)
+            Message = make_question(model)
+            flag_new_pair = True
+
+        elif line_begin[0] != line_end[0] or new_line_1 + 1 != new_line_2:
             criteria_number = int(line_end[0])
             criteria_2 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
             name_2 = criteria_2.name
@@ -181,6 +196,7 @@ def write_answer(response: dict) -> dict:
             criteria_number = int(line_begin[0])
             criteria_1 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
             name_1 = criteria_1.name
+
 
     else:
         # Строка состоит из одного критерия или из нескольких, если из одного то -1
@@ -227,7 +243,7 @@ def write_answer(response: dict) -> dict:
                         line = option_1_line + "|" + str(new_line_2-i) + "|=2\n"
                         _write_file(line, path)
 
-                        i+= 1
+                        i += 1
 
                     else:
                         break
@@ -429,3 +445,79 @@ def _write_answer_to_history(question, answer, option_1, option_2, model_id):
         HistoryAnswer.objects.create(question=question, answer='Важнее второе', pair=pair, id_model=model)
     else:
         HistoryAnswer.objects.create(question=question, answer='Одинаково важны', pair=pair, id_model=model)
+
+def _precent(value, max) -> float:
+    return value / (max / 100)
+
+
+def _init_file(data: list, filename: str, modelname: str) -> None:
+    path = 'api/files/models/' + modelname + '/' + filename + '.txt'
+    pair_file = open(path, 'w')
+
+    for row in data:
+        line = ';'.join([str(i) for i in row])
+        pair_file.write(line)
+        pair_file.write('\n')
+
+    pair_file.write('#####\n')
+    pair_file.close()
+
+
+def _create_image_for_pair(rows, model, pair):
+    length = len(rows)
+    if length > 10:
+        return
+
+    w, h = 480, 480
+    interval = int(w / length)   # Интервал между стрелок
+
+    if abs(float(rows[0][1])) > abs(float(rows[length-1][1])):
+        max = float(rows[0][1])
+
+    else:
+        max = float(rows[length-1][1])
+
+    for row in rows:
+        if (max < 0 and float(row[1]) > 0):
+            row[1] = int((float(row[1])) * (h/2 - 10) / max * (-1))
+        elif (max < 0 and float(row[1]) < 0):
+            row[1] = int((float(row[1])) * (h / 2 - 10) / max * (-1))
+        else:
+            row[1] = int((float(row[1])) * (h / 2 - 10) / max)
+
+    im = Image.new('RGB', (w, h), (195, 197, 200))
+    na = np.array(im)
+
+    distance = 15
+    h_begin = int(h / 2)
+    for row in rows:
+        # Draw arrowed line, from 10,20 to w-40,h-60 in black with thickness 8 pixels
+        h_end = int(h/2 - (row[1]))
+        na = cv2.arrowedLine(na, (distance, h_begin), (distance, h_end), (0, 0, 0), 4)
+        distance += interval
+    na = cv2.line(na, (0, h_begin), (w, h_begin), (0, 0, 0), 8)
+
+    path = 'api/files/models/' + model + '/' + pair + '.png'
+    Image.fromarray(na).save(path)
+
+    # Делаем подписи
+    img = Image.open(path)
+    idraw = ImageDraw.Draw(img)
+    font = ImageFont.truetype('api/files/fonts/9041.ttf', size=18)
+
+    distance = 15
+    for row in rows:
+        text = str(row[0])
+        if float(row[1]) > 0:
+            idraw.text((distance, int(h / 2 + 50)), text, font=font, fill='#000000')
+        else:
+            idraw.text((distance, int(h / 2 - 50)), text, font=font, fill='#000000')
+        distance += interval
+
+    p = PairsOfOptions.objects.get(id=int(pair))
+    text = p.id_option_2.name
+    length = len(text) * 9
+    idraw.text((w-15-length, 40), text, font=font, fill='#000000')
+    idraw.text((15, h-40), p.id_option_2.name, font=font, fill='#000000')
+
+    img.save(path)

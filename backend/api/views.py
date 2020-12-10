@@ -1,7 +1,5 @@
 import csv
 import json
-import base64
-from django.core.files.base import ContentFile
 from datetime import datetime, timedelta
 
 import jwt
@@ -136,7 +134,7 @@ def get_model(request, id):
     answers = []
     for answer_history in history_answers:
         answers.append({'question': answer_history.question, 'answer': answer_history.answer,
-                        'pair': answer_history.pair.id_option_1.name + ' и ' + answer_history.pair.id_option_1.name})
+                        'pair': answer_history.pair.id_option_1.name + ' и ' + answer_history.pair.id_option_2.name})
 
     response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers}
     return JsonResponse(response, status=200, safe=False)
