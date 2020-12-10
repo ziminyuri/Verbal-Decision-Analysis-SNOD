@@ -136,7 +136,14 @@ def get_model(request, id):
         answers.append({'question': answer_history.question, 'answer': answer_history.answer,
                         'pair': answer_history.pair.id_option_1.name + ' и ' + answer_history.pair.id_option_2.name})
 
-    response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers}
+    pairs = PairsOfOptions.objects.filter(id_model=id)
+    img = []
+    if len(pairs) < 10:
+        for pair in pairs:
+            img.append({'pair': pair.id_option_1.name + ' и ' + pair.id_option_2.name,
+                        'path': 'http://127.0.0.1:8000/media/' + str(model.id) + '/' + str(pair.id) + '.png'})
+
+    response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers, 'img': img}
     return JsonResponse(response, status=200, safe=False)
 
 

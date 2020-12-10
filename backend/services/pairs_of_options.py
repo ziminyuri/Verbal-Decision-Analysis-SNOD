@@ -497,7 +497,7 @@ def _create_image_for_pair(rows, model, pair):
         distance += interval
     na = cv2.line(na, (0, h_begin), (w, h_begin), (0, 0, 0), 8)
 
-    path = 'api/files/models/' + model + '/' + pair + '.png'
+    path = 'media/' + model + '/' + pair + '.png'
     Image.fromarray(na).save(path)
 
     # Делаем подписи
@@ -515,7 +515,7 @@ def _create_image_for_pair(rows, model, pair):
         distance += interval
 
     p = PairsOfOptions.objects.get(id=int(pair))
-    text = p.id_option_2.name
+    text = p.id_option_1.name
     length = len(text) * 9
     idraw.text((w-15-length, 40), text, font=font, fill='#000000')
     idraw.text((15, h-40), p.id_option_2.name, font=font, fill='#000000')

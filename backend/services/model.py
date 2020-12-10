@@ -18,9 +18,11 @@ def create_model(demo_model: bool = False) -> object:
 
 
 def _create_dir(dir_name: str) -> None:
-    path = 'api/files/models/' + dir_name
+    path1 = 'api/files/models/' + dir_name
+    path2 = 'media/' + dir_name
 
     try:
-        os.mkdir(path)
+        os.mkdir(path1)
+        os.mkdir(path2)
     except OSError:
-        print("Создать директорию %s не удалось" % path)
+        print("Создать директорию %s не удалось" % path2)
