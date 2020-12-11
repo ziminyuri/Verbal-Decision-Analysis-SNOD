@@ -18,7 +18,6 @@ export const Navbar = () => {
                 <NavLink to="/" className="brand-logo brand-logo-custom">ШНУР</NavLink>
                 <ul id="nav-mobile" className="right hide-on-med-and-down">
                     <li><NavLink to="/" >Главная</NavLink></li>
-                    <li><NavLink to="/model/create" >Создать</NavLink></li>
                     <li><NavLink to="/models" >Модели</NavLink></li>
                     <li><a href='/' onClick={logoutHandler} >Выйти</a></li>
                 </ul>

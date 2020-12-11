@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {useParams} from 'react-router-dom'
 import {useHttp} from "../hooks/http.hook";
 import {ModelCard} from "../components/ModelCard";
+import {Loader} from "../components/Loader";
 
 
 export const ResultModelPage =() => {
@@ -25,7 +26,7 @@ export const ResultModelPage =() => {
     },[getModel])
 
     if (loading) return ( <div>
-        <h1>Загрузка</h1>
+        <Loader />
     </div>)
 
     return (

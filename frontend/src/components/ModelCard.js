@@ -1,5 +1,6 @@
 import React from "react";
 import {HistoryAnswer} from "./HistoryAnswer";
+import {ScaleImage} from "./ScaleImage";
 
 export const ModelCard =({model}) =>{
     return(
@@ -28,6 +29,9 @@ export const ModelCard =({model}) =>{
 
             <h4>История ответов</h4>
             <HistoryAnswer history={model.history}/>
+
+            <h4>Шкалы Нормализованных Упорядоченных Различий</h4>
+            <ScaleImage img={model.img} />
         </div>
     )
 }

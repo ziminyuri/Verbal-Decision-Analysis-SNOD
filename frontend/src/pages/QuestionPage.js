@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useHttp} from "../hooks/http.hook";
 import {useHistory} from "react-router-dom";
+import {Loader} from "../components/Loader";
 
 export const QuestionPage =() => {
     const {loading, request} = useHttp()
@@ -72,8 +73,11 @@ export const QuestionPage =() => {
         } catch (e) {
         }
     }
+    if (loading) {
+        return <Loader />
+    }
+    else return (
 
-    return (
         <div>
             <h3>Ответьте на вопрос:</h3>
             <div className="row">
@@ -103,6 +107,7 @@ export const QuestionPage =() => {
                 </div>
             </div>
         </div>
+
     )
 }
 
