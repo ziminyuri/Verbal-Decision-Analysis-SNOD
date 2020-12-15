@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from api.models import Criterion, Option, Value, PairsOfOptions, Model, HistoryAnswer
-from services.pairs_of_options import create_files, make_question, write_answer
+from services.pairs_of_options import create_files, make_question, write_answer, absolute_value_in_str
 from services.model import create_model
 
 
@@ -140,8 +140,10 @@ def get_model(request, id):
     img = []
     if len(pairs) < 10:
         for pair in pairs:
+            absolute_value = absolute_value_in_str(model.id, pair.id)
             img.append({'pair': pair.id_option_1.name + ' и ' + pair.id_option_2.name,
-                        'path': 'http://127.0.0.1:8000/media/' + str(model.id) + '/' + str(pair.id) + '.png'})
+                        'path': 'http://127.0.0.1:8000/media/' + str(model.id) + '/' + str(pair.id) + '.png',
+                        'absolute_value': absolute_value})
 
     response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers, 'img': img,
                 'time_shnur_elapsed': model.time_shnur, 'time_answer_elapsed': model.time_answer_shnur,
@@ -154,7 +156,7 @@ def get_model(request, id):
 def get_models(request):
     response = []
     try:
-        models = Model.objects.all()
+        models = Model.objects.all().exclude(id_winner_option_shnur=None)
 
         for model in models:
             response.append({'name': model.name, 'id': model.id})

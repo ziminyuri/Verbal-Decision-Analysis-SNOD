@@ -2,7 +2,7 @@ def normalisation_time(delta_time_shnur):
     delta_time_shnur = str(delta_time_shnur)
     print(delta_time_shnur)
     time = delta_time_shnur.split('.')[0]
-    result = 'Прошло '
+    result = 'Прошло: '
 
     if time.split(':')[0] != '0':
         result += time.split(':')[0] + ' ч '

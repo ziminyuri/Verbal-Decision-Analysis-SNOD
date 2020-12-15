@@ -96,8 +96,8 @@ def make_question(model):
                     criteria_2 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
                     name_2 = criteria_2.name
 
-                    question = 'Преимущество по критерию: "' + name_1 + '" важнее чем преимущество по криетрию: "' \
-                               + name_2 + '"'
+                    question = 'Преимущество по критерию: "' + name_1 + '" важнее чем преимущество по критерию: "' \
+                               + name_2 + '" ?'
                     Message = {'question': question, 'option_1': option_1.id, 'option_2': option_2.id,
                                'option_1_line': str(0), 'option_2_line': str(delimeter_line - 1), 'model': model.id,
                             'flag_find_winner': 0}
@@ -327,8 +327,8 @@ def write_answer(response: dict) -> dict:
                 name_1 = criteria_1.name
 
     if flag_new_pair is False:
-        question = 'Преимущество по критерию: "' + name_1 + '" важнее чем преимущество по криетрию: "' \
-                   + name_2 + '"'
+        question = 'Преимущество по критерию: "' + name_1 + '" важнее чем преимущество по критерию: "' \
+                   + name_2 + '" ?'
         Message = {'question': question, 'option_1': option_1, 'option_2': option_2,
                    'option_1_line': option_1_line, 'option_2_line': option_2_line, 'model': model.id,
                    'flag_find_winner': 0}
@@ -429,7 +429,7 @@ def _find_winner_for_model(model):
     )
 
 
-def _sort(rows: list) -> list:
+def _sort(rows: list, by_number_criterion: bool = False) -> list:
     # Cортируем пузырьков
 
     n = len(rows)
@@ -438,8 +438,12 @@ def _sort(rows: list) -> list:
             row_i = rows[j]
             row_i1 = rows[j + 1]
 
-            if row_i[1] < row_i1[1]:
-                rows[j], rows[j + 1] = rows[j + 1], rows[j]
+            if by_number_criterion:
+                if row_i[0] > row_i1[0]:
+                    rows[j], rows[j + 1] = rows[j + 1], rows[j]
+            else:
+                if row_i[1] < row_i1[1]:
+                    rows[j], rows[j + 1] = rows[j + 1], rows[j]
 
     return rows
 
@@ -497,6 +501,7 @@ def _write_answer_to_history(question, answer, option_1, option_2, model_id):
         HistoryAnswer.objects.create(question=question, answer='Важнее второе', pair=pair, id_model=model)
     else:
         HistoryAnswer.objects.create(question=question, answer='Одинаково важны', pair=pair, id_model=model)
+
 
 def _precent(value, max) -> float:
     return value / (max / 100)
@@ -608,5 +613,16 @@ def _write_answer_model(option_1_line: str, option_2_line: str, model_id, data: 
     _write_file(line, path)
 
 
+def absolute_value_in_str(model_id, pair_id):
+    model = Model.objects.get(id=model_id)
+    pair = PairsOfOptions.objects.get(id=pair_id)
+    data = _read_file(model, pair)
+    data = _sort(data[0], by_number_criterion=True)
 
-
+    criterions = Criterion.objects.filter(id_model=model)
+    result = []
+    n = len(criterions)
+    for i in range(n):
+        line = str(data[i][0]) + ' - ' + criterions[i].name + ' = ' + str(data[i][1]) + str('\n')
+        result.append(line)
+    return result
