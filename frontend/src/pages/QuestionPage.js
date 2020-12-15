@@ -17,6 +17,18 @@ export const QuestionPage =() => {
         fetchData();
     }, []);
 
+    const mainPageHandler = async () => {
+        try {
+            history.push('/')
+        } catch (e) {}
+    }
+
+    const modelsPageHandler = async () => {
+        try {
+            history.push('/models')
+        } catch (e) {}
+    }
+
 
     function go_result() {
         history.push(`/model/result/${response.model}`)
@@ -77,7 +89,7 @@ export const QuestionPage =() => {
         return <Loader />
     }
     else return (
-
+        <>
         <div>
             <h3>Ответьте на вопрос:</h3>
             <div className="row">
@@ -107,6 +119,18 @@ export const QuestionPage =() => {
                 </div>
             </div>
         </div>
+        <div className='row'>
+            <div className="col 1">
+                <button className="waves-effect waves-light btn" onClick={mainPageHandler}>
+                    <i className="material-icons left">backspace</i>
+                    На главную</button>
+            </div>
+            <div className="col 1">
+                <button className="waves-effect waves-light btn btn-custom" onClick={modelsPageHandler}>
+                    <i className="material-icons right">list</i>К моделям</button>
+            </div>
+        </div>
+        </>
 
     )
 }

@@ -33,7 +33,7 @@ def get_model_data(model_id):
     model = Model.objects.get(id=model_id)
     options = Option.objects.filter(id_model=model)
 
-    header  = ['№','Наименование критерия']
+    header = ['№','Наименование критерия']
     for option in options:
         header.append(option.name)
 

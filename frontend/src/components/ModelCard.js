@@ -1,10 +1,25 @@
 import React from "react";
 import {HistoryAnswer} from "./HistoryAnswer";
 import {ScaleImage} from "./ScaleImage";
+import {Table} from "./Table";
+import {TableWinners} from "./TableWinners";
 
 export const ModelCard =({model}) =>{
     return(
         <div>
+            <h4>Исходные данные</h4>
+            <Table model={model}/>
+
+            <h4>Шкалы Нормализованных Упорядоченных Различий</h4>
+            <p>ШНУР был рассчитан на основе исходных данных по альтернативам</p>
+            <ScaleImage img={model.img} />
+
+            <h4>История ответов</h4>
+            <HistoryAnswer history={model.history}/>
+
+            <h4>Победы альтернатив в парах сравнения</h4>
+            <TableWinners model={model} />
+
             <h4>Результат</h4>
             <div className="row">
                 <div className="col s6 m6">
@@ -29,12 +44,6 @@ export const ModelCard =({model}) =>{
                     </div>
                 </div>
             </div>
-
-            <h4>История ответов</h4>
-            <HistoryAnswer history={model.history}/>
-
-            <h4>Шкалы Нормализованных Упорядоченных Различий</h4>
-            <ScaleImage img={model.img} />
         </div>
     )
 }

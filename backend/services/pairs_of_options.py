@@ -1,3 +1,5 @@
+import random
+
 from api.models import Model, Criterion, PairsOfOptions, Value, Option, HistoryAnswer
 import cv2
 import numpy as np
@@ -105,8 +107,11 @@ def make_question(model):
                     return Message
 
 
-def write_answer(response: dict) -> dict:
-    answer: int = response["answer"]
+def write_answer(response: dict, auto=False) -> dict:
+    if auto is False:
+        answer: int = response["answer"]
+    else:
+        answer: int = random.randint(0,2)
     option_1: int = response["option_1"]
     option_2: int = response["option_2"]
     option_1_line: str = response["option_1_line"]
@@ -123,6 +128,8 @@ def write_answer(response: dict) -> dict:
     _write_answer_model(option_1_line, option_2_line, model_id, data, answer)
 
     flag_new_pair = False
+    name_1 = ''
+    name_2 = ''
 
     path = 'api/files/models/' + str(model.id) + '/' + str(pair.id) + '.txt'
 
@@ -153,7 +160,6 @@ def write_answer(response: dict) -> dict:
                 criteria_1 = Criterion.objects.filter(id_model=model).get(number=criteria_number)
                 name_1 = criteria_1.name
 
-                name_2 = ''
                 first_line = True
                 for row in list_2:
                     criteria_number = data[int(row[0])][0]
@@ -262,7 +268,6 @@ def write_answer(response: dict) -> dict:
 
             value_line_begin = float(line_begin[1])
             if line_begin[0] != line_end[0] and value_line_begin != 0.0:
-                name_1 = ''
                 first_line = True
                 for row in list_1:
                     criteria_number = data[int(row[0])][0]
@@ -535,6 +540,9 @@ def _create_image_for_pair(rows, model, pair):
     else:
         max = float(rows[length-1][1])
 
+    min_value = str(round(rows[-1][1], 2))
+
+
     h_scale = h - 80  # ДЛя графиков чтобы оставить место подписи
 
     for row in rows:
@@ -549,8 +557,16 @@ def _create_image_for_pair(rows, model, pair):
     na = np.array(im)
 
     h_begin = int(h_scale/ 2)
+    # Оси
     na = cv2.arrowedLine(na, (3, h_begin), (w - 5, h_begin), (0, 0, 0), 4)
     na = cv2.arrowedLine(na, (distance, h-50), (distance, 5), (0, 0, 0), 4)
+
+    # Риски на Oy
+    # h_end = int(h_scale / 2 - (rows[0][1]))
+    # na = cv2.line(na, (15, h_end), (45, h_end), (0, 0, 0), 4)
+    h_end = int(h_scale / 2 - (rows[-1][1]))
+    na = cv2.line(na, (15, h_end), (45, h_end), (0, 0, 0), 4)
+
     distance += interval * 2
     for row in rows:
         # Draw arrowed line, from 10,20 to w-40,h-60 in black with thickness 8 pixels
@@ -583,8 +599,16 @@ def _create_image_for_pair(rows, model, pair):
     p = PairsOfOptions.objects.get(id=int(pair))
     text = p.id_option_1.name
     length = len(text) * 9
-    idraw.text((w-15-length, 40), text, font=font, fill='#000000')
+    idraw.text((w-15-length, h-40), text, font=font, fill='#000000')
     idraw.text((15, h-40), p.id_option_2.name, font=font, fill='#000000')
+
+    idraw.text((w-45, h/2), 'Ox', font=font, fill='#000000')
+    idraw.text((60, 15), 'Oy', font=font, fill='#000000')
+
+    # Подписываем риски
+    h_end = int(h_scale / 2 - (rows[-1][1]))
+
+    idraw.text((45, h_end), min_value, font=font, fill='#000000')
 
     img.save(path)
 
@@ -635,3 +659,22 @@ def absolute_value_in_str(model_id, pair_id):
         line = str(data[i][0]) + ' - ' + criterions[i].name + ' = ' + str(data[i][1]) + str('\n')
         result.append(line)
     return result
+
+
+def data_of_winners(model_id):
+    model = Model.objects.get(id=model_id)
+    pairs = PairsOfOptions.objects.filter(id_model=model)
+
+    header = ['Алтернатива №1', 'Алтернатива №2', 'Победитель в паре по ШНУР',
+              'Победитель в паре по многокритериальной оптимизации']
+
+    data = []
+    for pair in pairs:
+        row = []
+        row.append(pair.id_option_1.name)
+        row.append(pair.id_option_2.name)
+        row.append(pair.winner_option.name)
+        row.append(pair.winner_option_many.name)
+        data.append(row)
+
+    return data, header

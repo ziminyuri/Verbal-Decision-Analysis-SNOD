@@ -26,6 +26,9 @@ export const useRoutes = isAuthentificated =>{
                 <Route path="/model/demo/question" exact>
                     <QuestionPage/>
                 </Route>
+                <Route path="/model/demo/question" exact>
+                    <QuestionPage/>
+                </Route>
                 <Route path="/model/demo" exact>
                     <DemoModelPage/>
                 </Route>

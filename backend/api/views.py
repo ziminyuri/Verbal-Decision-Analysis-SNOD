@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from api.models import Criterion, Option, Value, PairsOfOptions, Model, HistoryAnswer
-from services.pairs_of_options import create_files, make_question, write_answer, absolute_value_in_str
+from services.pairs_of_options import create_files, make_question, write_answer, absolute_value_in_str, data_of_winners
 from services.model import create_model, get_model_data
 
 JWT_SECRET = 'secret'
@@ -113,13 +113,82 @@ def demo_create(request):
         return JsonResponse(message, status=200)
 
 
+def auto_create(request):
+    if request.method == 'GET':
+        options_obj_list = []
+        model = create_model(demo_model=True)
+
+        with open("api/files/demo.csv", encoding='utf-8') as r_file:
+            file_reader = csv.reader(r_file, delimiter=",")
+            count = False
+
+            criterion_number = 1
+            option_number = 1
+            for row in file_reader:
+                if count is False:
+
+                    for i in range(2, len(row)):
+                        option = Option.objects.create(name=row[i], id_model=model, number=option_number)
+                        options_obj_list.append(option)
+                        option_number += 1
+
+                    count = True
+
+                else:
+
+                    if row[1] == 'min':
+                        direction = False
+                    else:
+                        direction = True
+
+                    max = float(row[2])
+                    for i in range(3, len(row)):
+                        if max < float(row[i]):
+                            max = float(row[i])
+
+                    criterion = Criterion.objects.create(name=row[0], id_model=model, direction=direction, max=max,
+                                                         number=criterion_number)
+
+                    criterion_number += 1
+
+                    for i in range(2, len(row)):
+                        value = float(row[i])
+                        Value.objects.create(value=value, id_option=options_obj_list[i-2], id_criterion=criterion)
+
+        n = len(options_obj_list)
+        k = 1
+        for i in range(n):
+            for j in range(k, n):
+                if i != j:
+                    s = PairsOfOptions.objects.create(id_option_1=options_obj_list[i], id_option_2=options_obj_list[j],
+                                                      id_model=model)
+
+            k += 1
+        create_files(model)
+        message = make_question(model)
+        i = 1
+        while i == 1:
+            message = question(message, auto=True)
+            flag = message['flag_find_winner']
+            if flag == 1:
+                break
+
+        response = {'model_id': model.id}
+        return JsonResponse(response, status=200)
+
+
 @csrf_exempt
-def question(request):
+def question(request, auto=False):
+    if auto is True:
+        return write_answer(request, auto=True)
+
     if request.method == 'POST':
         json_data: dict = json.loads(request.body)
         message = write_answer(json_data)
-
         return JsonResponse(message, status=200)
+
+
+
 
 
 @csrf_exempt
@@ -145,10 +214,12 @@ def get_model(request, id):
                         'absolute_value': absolute_value})
 
     model_data, model_header = get_model_data(model.id)
+    winners_data, winners_header = data_of_winners(model.id)
 
     response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers, 'img': img,
                 'time_shnur_elapsed': model.time_shnur, 'time_answer_elapsed': model.time_answer_shnur,
-                'time_many_elapsed': model.time_many, 'model_data': model_data, 'model_header': model_header}
+                'time_many_elapsed': model.time_many, 'model_data': model_data, 'model_header': model_header,
+                'winners_data': winners_data, 'winners_header': winners_header}
 
     return JsonResponse(response, status=200, safe=False)
 
