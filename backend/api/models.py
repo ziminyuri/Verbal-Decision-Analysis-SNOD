@@ -17,9 +17,11 @@ class Model(models.Model):
     # Модель
     is_demo = models.BooleanField()
     name = models.CharField(max_length=255)
-    # Так делать не нужно
     id_winner_option_shnur = models.IntegerField(null=True)    # id победителя по методу ШНУР
     id_winner_option_many = models.IntegerField(null=True)      # id победителя по многокриетриальному методу
+    time_shnur = models.CharField(max_length=255)
+    time_answer_shnur = models.CharField(max_length=255)
+    time_many = models.CharField(max_length=255)
 
 
 class Criterion(models.Model):

@@ -143,7 +143,10 @@ def get_model(request, id):
             img.append({'pair': pair.id_option_1.name + ' и ' + pair.id_option_2.name,
                         'path': 'http://127.0.0.1:8000/media/' + str(model.id) + '/' + str(pair.id) + '.png'})
 
-    response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers, 'img': img}
+    response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers, 'img': img,
+                'time_shnur_elapsed': model.time_shnur, 'time_answer_elapsed': model.time_answer_shnur,
+                'time_many_elapsed': model.time_many}
+
     return JsonResponse(response, status=200, safe=False)
 
 

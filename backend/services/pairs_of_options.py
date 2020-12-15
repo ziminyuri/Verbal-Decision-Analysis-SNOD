@@ -2,11 +2,14 @@ from api.models import Model, Criterion, PairsOfOptions, Value, Option, HistoryA
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+import datetime
+from services.normalisation import normalisation_time
 
 
 def create_files(model: object):
     model = Model.objects.get(id=model.id)
     pairs = PairsOfOptions.objects.filter(id_model=model)
+    time_begin = datetime.datetime.now()
 
     for i in pairs:
         rows = []
@@ -41,7 +44,24 @@ def create_files(model: object):
         _find_winner_many_qriterion(rows, i)  # ищем победителя
         _create_image_for_pair(rows, str(model.id), str(i.id))
 
+    time_end = datetime.datetime.now()
+
+    delta_time_shnur = time_end - time_begin
+    delta_time_shnur = normalisation_time(delta_time_shnur)
+    time_begin = datetime.datetime.now()
+
     _find_winner_for_model_many(model)
+
+    time_end = datetime.datetime.now()
+    delta_time_many = time_end - time_begin
+    delta_time_many = normalisation_time(delta_time_many)
+
+    time_begin = str(datetime.datetime.now())
+    Model.objects.filter(id=model.id).update(
+        time_shnur=delta_time_shnur,
+        time_many=delta_time_many,
+        time_answer_shnur=time_begin
+    )
 
 
 def make_question(model):
@@ -396,8 +416,16 @@ def _find_winner_for_model(model):
             winner_id = key
             winner_value = value
 
+    # Время окончания и поиск разницы времени на ответы на вопросы
+    time_begin = model.time_answer_shnur
+    time_begin = datetime.datetime.strptime(time_begin,'%Y-%m-%d %H:%M:%S.%f')
+    time_end = datetime.datetime.now()
+    delta_time_many = time_end - time_begin
+    delta_time_many = normalisation_time(delta_time_many)
+
     Model.objects.filter(id=model.id).update(
         id_winner_option_shnur=winner_id,
+        time_answer_shnur=delta_time_many
     )
 
 
