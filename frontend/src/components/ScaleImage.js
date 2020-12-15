@@ -12,7 +12,8 @@ export const ScaleImage = ({img}) => {
                 <tr>
                     <th>№</th>
                     <th>Пара альтернатив</th>
-                    <th>ШНУР</th>
+                    <th>Иллюстрация ШНУР</th>
+                    <th>Нормализованные упорядоченные значения ШНУР</th>
                 </tr>
                 </thead>
 
@@ -24,6 +25,17 @@ export const ScaleImage = ({img}) => {
                             <td>{img.pair}</td>
                             <td>
                                 <img src={img.path}/>
+                            </td>
+                            <td>
+                                {img.absolute_value.map((line, index1) => {
+                                    return (
+
+                                        <p key={index1}>{line}
+
+                                        </p>
+
+                                    )
+                                })}
                             </td>
                         </tr>
                     )
