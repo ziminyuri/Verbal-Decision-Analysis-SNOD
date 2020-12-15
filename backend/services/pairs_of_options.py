@@ -526,7 +526,8 @@ def _create_image_for_pair(rows, model, pair):
         return
 
     w, h = 480, 480
-    interval = int(w / length)   # Интервал между стрелок
+    distance = 30
+    interval = int((w-distance) / (length+3)) # Интервал между стрелок
 
     if abs(float(rows[0][1])) > abs(float(rows[length-1][1])):
         max = float(rows[0][1])
@@ -534,25 +535,29 @@ def _create_image_for_pair(rows, model, pair):
     else:
         max = float(rows[length-1][1])
 
+    h_scale = h - 80  # ДЛя графиков чтобы оставить место подписи
+
     for row in rows:
         if (max < 0 and float(row[1]) > 0):
-            row[1] = int((float(row[1])) * (h/2 - 10) / max * (-1))
+            row[1] = int((float(row[1])) * (h_scale/2 - 10) / max * (-1))
         elif (max < 0 and float(row[1]) < 0):
-            row[1] = int((float(row[1])) * (h / 2 - 10) / max * (-1))
+            row[1] = int((float(row[1])) * (h_scale / 2 - 10) / max * (-1))
         else:
-            row[1] = int((float(row[1])) * (h / 2 - 10) / max)
+            row[1] = int((float(row[1])) * (h_scale / 2 - 10) / max)
 
     im = Image.new('RGB', (w, h), (195, 197, 200))
     na = np.array(im)
 
-    distance = 15
-    h_begin = int(h / 2)
+    h_begin = int(h_scale/ 2)
+    na = cv2.arrowedLine(na, (3, h_begin), (w - 5, h_begin), (0, 0, 0), 4)
+    na = cv2.arrowedLine(na, (distance, h-50), (distance, 5), (0, 0, 0), 4)
+    distance += interval * 2
     for row in rows:
         # Draw arrowed line, from 10,20 to w-40,h-60 in black with thickness 8 pixels
-        h_end = int(h/2 - (row[1]))
+
+        h_end = int(h_scale/2 - (row[1]))
         na = cv2.arrowedLine(na, (distance, h_begin), (distance, h_end), (0, 0, 0), 4)
         distance += interval
-    na = cv2.line(na, (0, h_begin), (w, h_begin), (0, 0, 0), 8)
 
     path = 'media/' + model + '/' + pair + '.png'
     Image.fromarray(na).save(path)
@@ -562,13 +567,17 @@ def _create_image_for_pair(rows, model, pair):
     idraw = ImageDraw.Draw(img)
     font = ImageFont.truetype('api/files/fonts/9041.ttf', size=18)
 
-    distance = 15
+    distance = 30
+    distance += interval * 2
     for row in rows:
         text = str(row[0])
         if float(row[1]) > 0:
-            idraw.text((distance, int(h / 2 + 50)), text, font=font, fill='#000000')
+            idraw.text((distance, int(h_scale / 2 + 50)), text, font=font, fill='#000000')
+        elif float(row[1]) == 0:
+            idraw.ellipse([distance-10, h_begin-10, distance+10, h_begin+10], fill='#000000')
+            idraw.text((distance, int(h_scale / 2 - 50)), text, font=font, fill='#000000')
         else:
-            idraw.text((distance, int(h / 2 - 50)), text, font=font, fill='#000000')
+            idraw.text((distance, int(h_scale / 2 - 50)), text, font=font, fill='#000000')
         distance += interval
 
     p = PairsOfOptions.objects.get(id=int(pair))
