@@ -10,8 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from api.models import Criterion, Option, Value, PairsOfOptions, Model, HistoryAnswer
 from services.pairs_of_options import create_files, make_question, write_answer, absolute_value_in_str
-from services.model import create_model
-
+from services.model import create_model, get_model_data
 
 JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
@@ -145,9 +144,11 @@ def get_model(request, id):
                         'path': 'http://127.0.0.1:8000/media/' + str(model.id) + '/' + str(pair.id) + '.png',
                         'absolute_value': absolute_value})
 
+    model_data, model_header = get_model_data(model.id)
+
     response = {'option_shnur': option_shnur.name, 'option_many': option_many.name, 'history': answers, 'img': img,
                 'time_shnur_elapsed': model.time_shnur, 'time_answer_elapsed': model.time_answer_shnur,
-                'time_many_elapsed': model.time_many}
+                'time_many_elapsed': model.time_many, 'model_data': model_data, 'model_header': model_header}
 
     return JsonResponse(response, status=200, safe=False)
 
