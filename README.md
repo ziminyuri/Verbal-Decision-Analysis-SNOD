@@ -18,4 +18,4 @@
 #### Install Nodejs and NPM and run this commands after
 `cd frontend`
 
-`npm start`
+`npm start` or `node node_modules/react-scripts/scripts/start.js`
