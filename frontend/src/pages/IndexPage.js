@@ -8,8 +8,11 @@ export const IndexPage =() => {
     const {loading, request} = useHttp()
     const history = useHistory()
 
-
-
+    const useDemoModelPARKHandler = async () => {
+        try {
+            history.push('/model/demo/question/park')
+        } catch (e) {}
+    }
 
     const useDemoModelHandler = async () => {
         try {
@@ -39,9 +42,13 @@ export const IndexPage =() => {
                             </div>
                             <div className="card-action">
                                 <a
-                                onClick={useDemoModelHandler}>Использовать</a>
+                                    onClick={useDemoModelPARKHandler}>Использовать ПАРК</a>
                                 <a
-                                    onClick={useAutoModelHandler}>Демо-режим</a>
+                                onClick={useDemoModelHandler}>Использовать ШНУР</a>
+                            </div>
+                            <div className="card-action">
+                                <a
+                                    onClick={useAutoModelHandler}>Автогенерация ШНУР</a>
                             </div>
 
                         </div>

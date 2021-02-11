@@ -8,6 +8,7 @@ import {AuthPage} from "./pages/AuthPage";
 import {CreateModelPage} from "./pages/CreateModelPage";
 import {ResultModelPage} from "./pages/ResultModelPage"
 import {ModelsPage} from "./pages/ModelsPage";
+import {RangePage} from "./pages/RangePage";
 
 
 export const useRoutes = isAuthentificated =>{
@@ -23,12 +24,18 @@ export const useRoutes = isAuthentificated =>{
                 <Route path="/input_data" exact>
                     <InputDataPage/>
                 </Route>
+
+                {/* ШНУР */}
                 <Route path="/model/demo/question" exact>
                     <QuestionPage/>
                 </Route>
-                <Route path="/model/demo/question" exact>
-                    <QuestionPage/>
+
+                {/* ПАРК */}
+                <Route path="/model/demo/question/park" exact>
+                    <RangePage/>
                 </Route>
+
+
                 <Route path="/model/demo" exact>
                     <DemoModelPage/>
                 </Route>
