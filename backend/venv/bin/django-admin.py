@@ -1,4 +1,4 @@
-#!/Users/zimin/Documents/GitHub/verbal_decision_analytics/backend/venv/bin/python
+#!/Users/zimin/Documents/GitHub/Verbal-Decision-Analysis-SNOD/backend/venv/bin/python
 # When the django-admin.py deprecation ends, remove this script.
 import warnings
 

@@ -29,7 +29,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/zimin/Documents/GitHub/verbal_decision_analytics/backend/venv"
+set -gx VIRTUAL_ENV "/Users/zimin/Documents/GitHub/Verbal-Decision-Analysis-SNOD/backend/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
